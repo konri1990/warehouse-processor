@@ -1,8 +1,8 @@
 import { Material } from "../domain/material";
-import { Warehouse } from "../domain/warehouse";
+import { IWarehouse, Warehouse } from "../domain/warehouse";
 
 class LineParser {
-    readonly line : string; 
+    readonly line : string;
     constructor(inputLine : string) {
         this.line = this.formatLine(inputLine);
     }
@@ -16,12 +16,16 @@ class LineParser {
         return { id : splittedLine[1], name : splittedLine[0] };
     }
 
-    public getWarehouses(warehouseSeparator = "|", warehouseAvailabilitySeparator = ",") : Array<Warehouse> {
+    public getWarehouses(warehouseSeparator = "|", warehouseAvailabilitySeparator = ",") : Array<IWarehouse> {
         const splittedLine = this.line.split(";"); //TODO merge with material one
         const warehouses = splittedLine[2].split(warehouseSeparator);
-        return warehouses.map(warehouse => {
-            let warehouseDetails = warehouse.split(warehouseAvailabilitySeparator);
-            return {name: warehouseDetails[0], totalMaterials: parseInt(warehouseDetails[1]) };
+        return warehouses.map<IWarehouse>(warehouseData => {
+            let warehouseDetails = warehouseData.split(warehouseAvailabilitySeparator);
+            let warehouseName = warehouseDetails[0];
+            let warehouseMaterialState = parseInt(warehouseDetails[1]);
+            let warehouse : IWarehouse = new Warehouse(warehouseName);
+            warehouse.addMaterial(this.getMaterial(), warehouseMaterialState);
+            return warehouse;
         });
     }
 
