@@ -38,8 +38,8 @@ describe('Given line parser', () => {
 
         expect(warehouseA.getName()).toBe('WH-A');
         expect(warehouseB.getName()).toBe('WH-B');
-        expect(warehouseA.totalMaterialsState()).toEqual(5);
-        expect(warehouseB.totalMaterialsState()).toEqual(10);
+        expect(warehouseA.totalMaterialsAvailable()).toEqual(5);
+        expect(warehouseB.totalMaterialsAvailable()).toEqual(10);
     });
 
     it('should return 1 warehouse object, when input contais data about 1 warehouse', () => {
@@ -48,7 +48,7 @@ describe('Given line parser', () => {
         const warehouseA = lineParser.getWarehouses()[0];
 
         expect(warehouseA.getName()).toBe('WH-A');
-        expect(warehouseA.totalMaterialsState()).toEqual(15);
+        expect(warehouseA.totalMaterialsAvailable()).toEqual(15);
     });
 
     it('should return 3 warehouses object, when input contais data about 3 warehouses', () => {
@@ -61,8 +61,8 @@ describe('Given line parser', () => {
         expect(warehouseA.getName()).toBe('WH-A');
         expect(warehouseB.getName()).toBe('WH-B');
         expect(warehouseC.getName()).toBe('WH-C');
-        expect(warehouseA.totalMaterialsState()).toEqual(10);
-        expect(warehouseB.totalMaterialsState()).toEqual(6);
-        expect(warehouseC.totalMaterialsState()).toEqual(2);
+        expect(warehouseA.totalMaterialsAvailable()).toEqual(10);
+        expect(warehouseB.totalMaterialsAvailable()).toEqual(6);
+        expect(warehouseC.totalMaterialsAvailable()).toEqual(2);
     });
 });

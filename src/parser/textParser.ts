@@ -1,41 +1,22 @@
 import LineParser from "./lineParser";
 import { IWarehouse } from "../domain/warehouse";
-import { Report } from "../domain/report";
-import { IMaterialState } from "../domain/material";
+import { IMaterialViewModel } from "../domain/material";
+import RaportGenerator from "../services/raportGenerator";
 
 class TextParser {
-    private minimumDataLengthRequiredForProcessing : number = 6;
+    private newLineSeparator = '\n';
 
     public getReport(inputData: string) : string {
-        if(inputData.length < this.minimumDataLengthRequiredForProcessing)
-            return "Data are not correct. Please insert well formated logs.";
+        this.throwIfNotValid(inputData);
             
-        const lines = this.getAllLines(inputData);
+        const splittedLines = this.splitOnLines(inputData);
 
-        const singleLogData = this.getLinesWithWarehouseData(lines);
-
-        const finalReport : Report = {
-            warehouses: new Map<string, IWarehouse>()
-        };
-
-        singleLogData.forEach(singleLineData => {
-            let warhouses = singleLineData.getWarehouses();
-            let material = singleLineData.getMaterial();
-            for(let warehouse of warhouses) {
-                if(finalReport.warehouses.has(warehouse.getName())){
-                    let previousWarehouseState = finalReport.warehouses.get(warehouse.getName()) as IWarehouse;
-                    previousWarehouseState.addMaterial(material, warehouse.totalMaterialsState());
-                } else {
-                    finalReport.warehouses.set(warehouse.getName(), warehouse);
-                }
-            }
-        });
-
-        const sortedData = Array.from(finalReport.warehouses.values()).sort(this.sortByTotalAvailabilityInAscending);
-                
-        return sortedData.map(warehouse => {
-            return `${this.getWarehouseSummaryHeader(warehouse)}${this.getWarehouseDetailsState(warehouse)}`;
-        }).join('\n');
+        const warehousesLines = this.getLinesWithWarehouseData(splittedLines);
+        const reportGenerator = new RaportGenerator(warehousesLines);            
+        return reportGenerator.getWarehousesReport().map(warehouse => {
+            return `${this.getWarehouseSummaryHeader(warehouse)}`
+            + `${this.getWarehouseDetailsState(reportGenerator.getMaterialsReportBy(warehouse))}`;
+        }).join(this.newLineSeparator);
     }
 
     getLinesWithWarehouseData(logLines: string[]) : LineParser[] {
@@ -51,33 +32,26 @@ class TextParser {
     private toParserLine = (logLine : string) : LineParser => 
         new LineParser(logLine);
 
-    private getAllLines = (inputData : string) : string[] => 
+    private splitOnLines = (inputData : string) : string[] => 
         inputData.split(/\r\n|\r|\n/g);
 
     private getWarehouseSummaryHeader = (warehouse : IWarehouse) : string =>
-        `${warehouse.getName()} (total ${warehouse.totalMaterialsState()}) \n`;
+        `${warehouse.getName()} (total ${warehouse.totalMaterialsAvailable()}) \n`;
 
-    private getWarehouseDetailsState(warehouse : IWarehouse) : string {
-        const materials = warehouse.getAllMaterialsState();
-        return materials.sort(this.sortByMaterialIdInDescendingOrder).map(material => {
-            return `${material.id}: ${material.totalAvailability} \n`;
+    private getWarehouseDetailsState(materials : IMaterialViewModel[]) : string {
+        return materials.map(material => {
+            return `${material.id}: ${material.totalAvailability} ${this.newLineSeparator}`;
         }).join('');
     }
 
-    private sortByTotalAvailabilityInAscending(warehouseOne : IWarehouse, warehouseTwo : IWarehouse) : number {
-        if(warehouseOne.totalMaterialsState() > warehouseTwo.totalMaterialsState())
-            return -1;
-        if(warehouseOne.totalMaterialsState() < warehouseTwo.totalMaterialsState())
-            return 1;
-
-        const sortByNameInDescendingOrder = (warehouseOne : IWarehouse, warehouseTwo : IWarehouse) : number => 
-            warehouseOne.getName() > warehouseTwo.getName() ? -1 : -1;
-        
-        return sortByNameInDescendingOrder(warehouseOne, warehouseTwo);
+    private throwIfNotValid(inputData : string) : void {
+        //better will be have some nice validation, however it is not in the scope right now
+        //will be done in next sprint :)
+        const minimumDataLengthRequiredForProcessing = 6;
+        if(inputData.length < minimumDataLengthRequiredForProcessing)
+            throw new TypeError("Data are not correct. Please insert well formated logs.");
+        return;
     }
-
-    private sortByMaterialIdInDescendingOrder = (materialOne : IMaterialState, materialSecond : IMaterialState) : number =>
-        materialOne.id > materialSecond.id ? 1 : -1;
 }
 
 export default TextParser;

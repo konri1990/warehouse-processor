@@ -3,7 +3,7 @@ export interface Material {
     name : string;
 }
 
-export interface IMaterialState {
+export interface IMaterialViewModel {
     id: string;
     totalAvailability: number; 
 }

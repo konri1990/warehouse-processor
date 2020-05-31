@@ -1,11 +1,11 @@
-import { Material, IMaterialState } from "./material";
+import { Material, IMaterialViewModel } from "./material";
 
 export interface IWarehouse {
     getName() : string;
     addMaterial(material : Material, totalMaterials : number) : void;
-    totalMaterialsState() : number;
-    getMaterialState(material : Material) : number;
-    getAllMaterialsState() : IMaterialState[];
+    totalMaterialsAvailable() : number;
+    getSingleMaterialAvailability(material : Material) : number;
+    getMaterialsAvailabilityDetails() : IMaterialViewModel[];
 }
 
 export class Warehouse implements IWarehouse {
@@ -17,17 +17,17 @@ export class Warehouse implements IWarehouse {
         this.materials = new Map<Material, number>();
     }
 
-    getAllMaterialsState(): IMaterialState[] {
+    getMaterialsAvailabilityDetails(): IMaterialViewModel[] {
         return Array.from(this.materials.keys()).map(material => {
-            return { id : material.id, totalAvailability : this.getMaterialState(material) }
+            return { id : material.id, totalAvailability : this.getSingleMaterialAvailability(material) }
         });
     }
 
-    getMaterialState(material : Material): number {
+    getSingleMaterialAvailability(material : Material): number {
         return this.materials.get(material) ?? 0;
     }
 
-    public totalMaterialsState() : number {
+    public totalMaterialsAvailable() : number {
         let materialsState = Array.from(this.materials.values());
         let totalMaterials = materialsState.reduce((materialPreviousState, materialCurrentState) => {
             return (materialPreviousState + materialCurrentState);

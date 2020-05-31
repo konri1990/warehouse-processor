@@ -3,7 +3,7 @@ import { Material } from "./material";
 
 
 describe('Given warehouse calculation', () => {
-    it('should return line without modification', () => {
+    it('should add properly materials and calculate properly availability', () => {
         const warehouseName = 'WH-A';
         const warehouse : IWarehouse = new Warehouse(warehouseName);
         const materialOne : Material = { id: 'COM100001', name: 'CHerry Hardwood Archer Door - PS' };
@@ -16,8 +16,8 @@ describe('Given warehouse calculation', () => {
         warehouse.addMaterial(materialTwo, 6);
         warehouse.addMaterial(materialTwo, 7);
         
-        expect(warehouse.totalMaterialsState()).toBe(48);
-        expect(warehouse.getMaterialState(materialOne)).toBe(35);
-        expect(warehouse.getMaterialState(materialTwo)).toBe(13);
+        expect(warehouse.totalMaterialsAvailable()).toBe(48);
+        expect(warehouse.getSingleMaterialAvailability(materialOne)).toBe(35);
+        expect(warehouse.getSingleMaterialAvailability(materialTwo)).toBe(13);
     });
 });
