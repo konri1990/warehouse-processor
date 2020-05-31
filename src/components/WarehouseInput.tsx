@@ -1,33 +1,29 @@
-import React, { useState } from 'react';
-import TextParser from '../parser/textParser';
+import React from 'react';
+import { TextField } from '@material-ui/core';
 
-function WarehouseInput() {
-    const [warehouseLogs, setWarehouseLogs] = useState("");
-    const [warehouseReport, setWarehouseReport ] = useState("");
-    const textParser = new TextParser();
+export interface IWarehouseInput {
+    warehouseLogs : string,
+    setWarehouseLogs : React.Dispatch<React.SetStateAction<string>>
+}
+
+export const WarehouseInput : React.FC<IWarehouseInput> = (props) => {
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        let report = textParser.getReport(event.target.value);
-        setWarehouseReport(report);
-        setWarehouseLogs(event.target.value);
+        if(!(event.target.value.length > 1))
+            return;
+        props.setWarehouseLogs(event.target.value);
     };
 
-    return (
+return (
     <div>
-        <div>
-            <textarea 
-                id="warehouse-logs-input" 
-                value={warehouseLogs}
-                onChange={handleChange} 
-            />
-        </div>
-        <div>
-            <p id="warehouse-report-output">
-                {warehouseReport}
-            </p>
-        </div>
+        <TextField
+            placeholder="Pass here logs from warehouses..."
+            multiline
+            fullWidth
+            id="warehouse-logs-input" 
+            defaultValue={props.warehouseLogs}
+            onChange={handleChange} 
+        />
     </div>
     )
 }
-
-export default WarehouseInput;

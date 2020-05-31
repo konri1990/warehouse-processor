@@ -1,9 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import WarehouseInput from './WarehouseInput';
+import CenteredGrid from './CenteredGrid';
 
 describe('Given text parser and input string', () => {
-    const component = shallow(<WarehouseInput />);
+    const component = shallow(<CenteredGrid />);
     
     it('renders the component', () => {
         expect(component).toMatchSnapshot();
